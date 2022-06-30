@@ -1,5 +1,4 @@
 {
-	"haji": true,
 	"client_Id": "<User Id from GMAIL API> See: https://nodemailer.com/smtp/oauth2/",
 	"client_secret": "<Client Secret from GMAIL API> See: https://nodemailer.com/smtp/oauth2/",
 	"refresh_token": "<Refresh token of Outh2 to autogenerate access token> See https://nodemailer.com/smtp/oauth2/",

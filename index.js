@@ -42,7 +42,7 @@ const { clear, debug, init, start } = flags;
 				});
 			else
 				return alert({
-					msg: 'A config.json file is created in current directory. Fill the data in config to perfrom action',
+					msg: 'A checkdep.json file is created in current directory. Fill the data in config to perfrom action',
 					type: 'success',
 					name: `DONE`
 				});

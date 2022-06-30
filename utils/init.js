@@ -6,7 +6,7 @@ module.exports = ({ clear = true }) => {
 	unhandled();
 	welcome({
 		title: `check-dep`,
-		tagLine: `by Naveed Abdullah`,
+		tagLine: `by MICROMERGER`,
 		description: pkg.description,
 		version: pkg.version,
 		bgColor: '#36BB09',

@@ -1,15 +1,15 @@
 {
-	"name": "dependency-doctor",
-	"description": "**dependency-doctor is used to find deprecated packages and send warning through email periodically**",
-	"version": "0.0.1",
-	"license": "UNLICENSED",
+	"name": "@micromerger/dependency-doctor",
+	"description": "**dependency-doctor is npm package used to find deprecated packages and send warning through email periodically**",
+	"version": "0.0.2",
+	"license": "MIT",
 	"bin": {
 		"dependency-doctor": "index.js"
 	},
 	"author": {
 		"name": "Naveed Abdullah",
 		"email": "naveedabdullah.mm@gmail.com",
-		"url": "https://github.com/naveedmm"
+		"url": "https://github.com/micromerger/dependency-doctor"
 	},
 	"keywords": [
 		"dependency-doctor",
