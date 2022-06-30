@@ -1,0 +1,41 @@
+{
+	"name": "dependency-doctor",
+	"description": "**dependency-doctor is used to find deprecated packages and send warning through email periodically**",
+	"version": "0.0.1",
+	"license": "UNLICENSED",
+	"bin": {
+		"dependency-doctor": "index.js"
+	},
+	"author": {
+		"name": "Naveed Abdullah",
+		"email": "naveedabdullah.mm@gmail.com",
+		"url": "https://github.com/naveedmm"
+	},
+	"keywords": [
+		"dependency-doctor",
+		"Naveed Abdullah"
+	],
+	"files": [
+		"index.js",
+		"utils"
+	],
+	"scripts": {
+		"format": "prettier --write \"./**/*.{js,json}\""
+	},
+	"dependencies": {
+		"axios": "^0.27.2",
+		"chalk": "^4.1.2",
+		"cli-alerts": "^1.2.2",
+		"cli-handle-error": "^4.4.0",
+		"cli-handle-unhandled": "^1.1.1",
+		"cli-meow-help": "^3.1.0",
+		"cli-welcome": "^2.2.2",
+		"googleapis": "^104.0.0",
+		"meow": "^9.0.0",
+		"node-cron": "^3.0.0",
+		"nodemailer": "^6.7.5"
+	},
+	"devDependencies": {
+		"prettier": "^2.7.1"
+	}
+}
