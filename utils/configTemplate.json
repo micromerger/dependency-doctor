@@ -1,0 +1,11 @@
+{
+	"haji": true,
+	"client_Id": "<User Id from GMAIL API> See: https://nodemailer.com/smtp/oauth2/",
+	"client_secret": "<Client Secret from GMAIL API> See: https://nodemailer.com/smtp/oauth2/",
+	"refresh_token": "<Refresh token of Outh2 to autogenerate access token> See https://nodemailer.com/smtp/oauth2/",
+	"sender_email": "<Email associated with all the above data to send email from > see https://nodemailer.com/smtp/oauth2/",
+	"// const REDIRECT_URI = 'https://developers.google.com/oauthplayground';": "<What name to show of a sender>",
+	"receiver_email_list": "<List of emails to notify> see https://nodemailer.com/smtp/oauth2/",
+	"cron": "<Node-Cron expression to set, how often you want to send the email. See https://crontab.guru/>",
+	"path": "<Absolute Path of the package.json file you want to keep an eye on>"
+}
