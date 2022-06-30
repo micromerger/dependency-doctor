@@ -80,6 +80,7 @@ const { clear, debug, init, start } = flags;
 					key = key.replaceAll('@', '%40');
 					key = key.replaceAll('/', '%2F');
 					value = value.replace('^', '');
+					value = value.replace('~', '');
 					let link = REG_LINK + key;
 					let res = await axios.get(link);
 					packageInfo.push({

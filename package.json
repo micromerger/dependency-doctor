@@ -1,7 +1,7 @@
 {
 	"name": "@micromerger/dependency-doctor",
 	"description": "**dependency-doctor is npm package used to find deprecated packages and send warning through email periodically**",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"license": "MIT",
 	"bin": {
 		"dependency-doctor": "index.js"
