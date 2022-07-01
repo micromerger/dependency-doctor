@@ -11,14 +11,16 @@ Use following command to create the config file
 
 #### Step 2
 
-Edit the checkdep.json file and fill all the values
+Edit the doctor.config.json file and fill all the values
 
 #### Step 3
 
 Use the following commmand to start the process
-Note: You need to be in the same directory where checkdep.json file exists
-`npx dependency-doctor --start`
-With this above command, dependency-doctor will read all the dependencies
-and gather information about all the dependencies and send them to the provided emails, using nodemailer.
 
-dependency-doctor uses node-cron to send the emails periodically to the user
+
+`npx dependency-doctor --start`
+
+Note: You need to be in the same directory where doctor.config.json file exists
+
+dependency-doctor will generate a report and send it to the provided emails, using nodemailer.
+
