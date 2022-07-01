@@ -14,6 +14,12 @@ const flags = {
 		alias: `s`,
 		desc: `Start Sending Notification`
 	},
+	recursive: {
+		type: `boolean`,
+		default: true,
+		alias: `r`,
+		desc: `Start as Cron Job`
+	},
 	clear: {
 		type: `boolean`,
 		default: false,
