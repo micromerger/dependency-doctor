@@ -6,25 +6,21 @@
  *
  * @author Naveed Abdullah <https://github.com/naveedmm>
  */
-const axios = require('axios');
 var cron = require('node-cron');
 const fs = require('fs');
 const alert = require('cli-alerts');
 
-const { compareVersion } = require('./utils/compareVersion');
 const { sendMail } = require('./utils/sendEmail');
 const initialize = require('./utils/init');
 const cli = require('./utils/cli');
 const log = require('./utils/log');
 const template = require('./utils/configTemplate');
-const { resolve } = require('path');
-const { Console } = require('console');
-
-let REG_LINK = 'http://registry.npmjs.com/';
-
+const chalk = require('chalk');
+const { getPackageInfo } = require('./utils/packageInfo');
+const { generateHTML } = require('./utils/generateHTML');
 const input = cli.input;
 const flags = cli.flags;
-const { clear, debug, init, start, recursive } = flags;
+const { clear, debug, init, start, recursive, local } = flags;
 
 (async () => {
 	initialize({ clear });
@@ -46,29 +42,50 @@ const { clear, debug, init, start, recursive } = flags;
 					name: `DONE`
 				});
 		});
-	} else if (!recursive) {
-		alert({
-			msg: 'You chose one time run. To run as a cron job, use -r flag',
-			type: 'info'
-		});
-		if (!fs.existsSync('doctor.config.json')) {
-			return alert({
-				msg: "doctor.config.json File doesn't exist. Use init command to create config file",
-				type: 'error'
-			});
-		}
+	}
+	if (start) {
 		try {
+			// --------- all the alerts for the user to see
+			recursive &&
+				alert({
+					msg: 'You chose recursive run. To run as one time job, use --recursive=false flag',
+					type: 'info'
+				});
+			!recursive &&
+				alert({
+					msg: 'You chose on time run. To run as recurrsive cron job, use --recursive flag',
+					type: 'info'
+				});
+			local &&
+				alert({
+					msg: 'You chose to save a local copy of report. For Email service, use --local=false flag',
+					type: 'info'
+				});
+			!local &&
+				alert({
+					msg: 'You chose to send report by email. To receive report locally, use --local flag',
+					type: 'info'
+				});
+
+			// ---------- all the error handling
+
+			if (!fs.existsSync('doctor.config.json')) {
+				return alert({
+					msg: "Config File doesn't exist. Use init command to create config file",
+					type: 'error'
+				});
+			}
+
 			let rawdata = fs.readFileSync('doctor.config.json');
+
 			let config = JSON.parse(rawdata);
-			console.log(config);
+
 			if (!config) {
 				return alert({
 					msg: 'doctor.config.json File is empty. Fill the data in config to perfrom action',
 					type: 'error'
 				});
 			}
-
-			console.log('here', config.paths);
 			if (
 				!config.paths ||
 				!Array.isArray(config.paths) ||
@@ -79,103 +96,29 @@ const { clear, debug, init, start, recursive } = flags;
 					type: 'error'
 				});
 			}
+			if (!cron.validate(config.cron)) {
+				return alert({
+					msg: 'Invalid cron expression',
+					type: 'error'
+				});
+			}
 			for (let i = 0; i < config.paths.length; i++) {
 				if (!fs.existsSync(config.paths[i])) {
 					return alert({
-						msg: `Path ${config.paths[i]} doesn't exist`,
+						msg: `File "${config.paths[i]}" doesn't exist`,
 						type: 'error'
 					});
 				}
 			}
-			for (let i = 0; i < config.paths.length; i++) {
-				const { dependencies, name } = require(config.paths[i]);
-				if (!dependencies) {
-					return alert({
-						msg: 'Unable to read package.json file',
-						type: 'error'
-					});
-				}
 
-				let packageInfo = [];
-				for (let [key, value] of Object.entries(dependencies)) {
-					// we have a scoped respository
-					let packageName = key;
-					key = key.replaceAll('@', '%40');
-					key = key.replaceAll('/', '%2F');
-					value = value.replace('^', '');
-					value = value.replace('~', '');
-					let link = REG_LINK + key;
-					let res = await axios.get(link);
-					packageInfo.push({
-						name: packageName,
-						latestVersion: res.data['dist-tags']?.latest,
-						deprecated: res.data.versions[value]?.deprecated
-							? true
-							: false,
-						updateStatus: compareVersion(
-							res.data['dist-tags']?.latest,
-							value
-						),
-						version: value
-					});
-				}
-				let content = {
-					html: JSON.stringify(packageInfo),
-					text: JSON.stringify(packageInfo),
-					subject: `${name.toUpperCase()}  Package Report`
-				};
-				sendMail({ config, content, packages: packageInfo })
-					.then(result => {
-						console.log(result);
-					})
-					.catch(err => {
-						console.log(err);
-					});
-			}
-		} catch (err) {
-			console.log(err);
-			// alert({ type: 'error', msg: err });
-		}
-	} else if (start) {
-		alert({
-			msg: 'You chose recursive run. To run as one time job, use --recursive=false flag',
-			type: 'info'
-		});
-		if (!fs.existsSync('doctor.config.json')) {
-			return alert({
-				msg: "Config File doesn't exist. Use init command to create config file",
-				type: 'error'
+			// informing user about the configurations
+
+			alert({
+				msg: 'provided config: ',
+				type: 'info'
 			});
-		}
-		try {
-			let rawdata = fs.readFileSync('doctor.config.json');
-			let config = JSON.parse(rawdata);
 			console.log(config);
-			if (!config) {
-				return alert({
-					msg: 'doctor.config.json File is empty. Fill the data in config to perfrom action',
-					type: 'error'
-				});
-			}
-			console.log('here');
-			if (
-				!config.paths ||
-				!Array.isArray(config.paths) ||
-				config.paths.length === 0
-			) {
-				return alert({
-					msg: 'Need an ARRAY of absolute paths to package.json files',
-					type: 'error'
-				});
-			}
-			for (let i = 0; i < config.paths.length; i++) {
-				if (!fs.existsSync(config.paths[i])) {
-					return alert({
-						msg: `Path ${config.paths[i]} doesn't exist`,
-						type: 'error'
-					});
-				}
-			}
+
 			for (let i = 0; i < config.paths.length; i++) {
 				const { dependencies, name } = require(config.paths[0]);
 				if (!dependencies) {
@@ -184,43 +127,83 @@ const { clear, debug, init, start, recursive } = flags;
 						type: 'error'
 					});
 				}
-				cron.schedule(config.cron, async () => {
-					let packageInfo = [];
-					for (let [key, value] of Object.entries(dependencies)) {
-						// we have a scoped respository
-						let packageName = key;
-						key = key.replaceAll('@', '%40');
-						key = key.replaceAll('/', '%2F');
-						value = value.replace('^', '');
-						value = value.replace('~', '');
-						let link = REG_LINK + key;
-						let res = await axios.get(link);
-						packageInfo.push({
-							name: packageName,
-							latestVersion: res.data['dist-tags']?.latest,
-							deprecated: res.data.versions[value]?.deprecated
-								? true
-								: false,
-							updateStatus: compareVersion(
-								res.data['dist-tags']?.latest,
-								value
-							),
-							version: value
-						});
-					}
+				if (recursive) {
+					cron.schedule(config.cron, async () => {
+						let packageInfo = await getPackageInfo(dependencies);
+						let content = {
+							text: JSON.stringify(packageInfo),
+							subject: `${name.toUpperCase()}  Package Report`
+						};
+						if (local) {
+							alert({
+								msg: `${name.toUpperCase()} Package Report`,
+								type: 'success'
+							});
+							console.table(packageInfo);
+							fs.writeFile(
+								'dependency_report.html',
+								generateHTML(packageInfo),
+								'utf8',
+								err => {
+									if (err)
+										return alert({
+											msg: 'Unable to create report file in current directory',
+											type: 'error'
+										});
+									else
+										return alert({
+											msg: 'A dependency_report.html file is created in current directory. Fill the data in config to perfrom action',
+											type: 'success',
+											name: `DONE`
+										});
+								}
+							);
+						} else {
+							sendMail({ config, content, packages: packageInfo })
+								.then(result => {
+									console.log(result);
+								})
+								.catch(err => {
+									console.log(err);
+								});
+						}
+					});
+				} else {
+					let packageInfo = await getPackageInfo(dependencies);
 					let content = {
-						html: JSON.stringify(packageInfo),
 						text: JSON.stringify(packageInfo),
 						subject: `${name.toUpperCase()}  Package Report`
 					};
-					sendMail({ config, content, packages: packageInfo })
-						.then(result => {
-							console.log(result);
-						})
-						.catch(err => {
-							console.log(err);
-						});
-				});
+					if (local) {
+						console.table(packageInfo);
+						fs.writeFile(
+							'dependency_report.html',
+							generateHTML(packageInfo, name),
+							'utf8',
+							err => {
+								if (err)
+									return alert({
+										msg: 'Unable to create report file in current directory',
+										type: 'error'
+									});
+								else
+									return alert({
+										msg: 'A dependency_report.html file is created in current directory. Fill the data in config to perfrom action',
+										type: 'success',
+										name: `DONE`
+									});
+							}
+						);
+					} else {
+						sendMail({ config, content, packages: packageInfo })
+							.then(result => {
+								console.log(result);
+							})
+							.catch(err => {
+								console.log(err);
+							});
+					}
+				}
 			}
 		} catch (err) {
 			console.log(err);

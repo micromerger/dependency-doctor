@@ -16,9 +16,15 @@ const flags = {
 	},
 	recursive: {
 		type: `boolean`,
-		default: true,
+		default: false,
 		alias: `r`,
 		desc: `Start as Cron Job`
+	},
+	local: {
+		type: `boolean`,
+		default: true,
+		alias: `l`,
+		desc: `Save a local copy of report`
 	},
 	clear: {
 		type: `boolean`,
